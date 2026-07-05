@@ -145,8 +145,11 @@ class AppRouter {
 
         if (onLanguageSelection) return null;
 
+        final dynamicShowOnboarding = prefs.getBool('show_onboarding') ?? showOnboarding;
+        final dynamicIsAuthenticated = prefs.getBool('is_authenticated') ?? isAuthenticated;
+
         // Onboarding guard: Force onboarding if not completed yet
-        if (showOnboarding && !onOnboarding) {
+        if (dynamicShowOnboarding && !onOnboarding) {
           return onboarding;
         }
 
@@ -156,12 +159,12 @@ class AppRouter {
         final isPublicRoute = onWelcome || loggingIn || onRegister || onPhoneLogin || onForgotPassword;
 
         // Force Welcome screen if not authenticated
-        if (!isAuthenticated && !isPublicRoute) {
+        if (!dynamicIsAuthenticated && !isPublicRoute) {
           return welcome;
         }
 
         // Redirect to dashboard if logged in and trying to access Welcome/Login/Register
-        if (isAuthenticated && isPublicRoute) {
+        if (dynamicIsAuthenticated && isPublicRoute) {
           return dashboard;
         }
 

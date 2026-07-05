@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/services/di_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/extensions/context_extensions.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});
+
+  Future<void> _completeOnboarding(BuildContext context) async {
+    final prefs = sl<SharedPreferences>();
+    await prefs.setBool('show_onboarding', false);
+    if (context.mounted) {
+      context.go('/welcome');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +30,7 @@ class OnboardingPage extends StatelessWidget {
               Align(
                 alignment: Alignment.topRight,
                 child: TextButton(
-                  onPressed: () => context.go('/login'),
+                  onPressed: () => _completeOnboarding(context),
                   child: Text(
                     'Skip',
                     style: context.textTheme.labelLarge?.copyWith(
@@ -96,7 +106,7 @@ class OnboardingPage extends StatelessWidget {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: () => context.go('/login'),
+                      onPressed: () => _completeOnboarding(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: context.colors.primary,
                         foregroundColor: context.colors.onPrimary,
