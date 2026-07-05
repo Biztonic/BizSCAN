@@ -133,39 +133,30 @@ class AppRouter {
         final onPhoneLogin = state.matchedLocation == phoneLogin;
         final onForgotPassword = state.matchedLocation == forgotPassword;
 
-        if (onSplash || onStyleGuide) return null;
-
         final prefs = sl<SharedPreferences>();
-        final hasSelectedLanguage = prefs.getString('selected_language') != null;
-
-        // Force language selection first
-        if (!hasSelectedLanguage && !onLanguageSelection) {
-          return languageSelection;
-        }
-
-        if (onLanguageSelection) return null;
-
-        final dynamicShowOnboarding = prefs.getBool('show_onboarding') ?? showOnboarding;
         final dynamicIsAuthenticated = prefs.getBool('is_authenticated') ?? isAuthenticated;
 
-        // Onboarding guard: Force onboarding if not completed yet
-        if (dynamicShowOnboarding && !onOnboarding) {
-          return onboarding;
-        }
-
-        if (onOnboarding) return null;
-
-        // Public authentication routes
-        final isPublicRoute = onWelcome || loggingIn || onRegister || onPhoneLogin || onForgotPassword;
-
-        // Force Welcome screen if not authenticated
-        if (!dynamicIsAuthenticated && !isPublicRoute) {
-          return welcome;
-        }
-
-        // Redirect to dashboard if logged in and trying to access Welcome/Login/Register
-        if (dynamicIsAuthenticated && isPublicRoute) {
+        // Redirect logged-in users away from auth pages to dashboard
+        if (dynamicIsAuthenticated && (onWelcome || loggingIn || onRegister || onPhoneLogin || onForgotPassword)) {
           return dashboard;
+        }
+
+        // Allow all public routes to navigate freely without blocking
+        final isPublicRoute = onSplash ||
+            onStyleGuide ||
+            onLanguageSelection ||
+            onOnboarding ||
+            onWelcome ||
+            loggingIn ||
+            onRegister ||
+            onPhoneLogin ||
+            onForgotPassword;
+
+        if (isPublicRoute) return null;
+
+        // Protected routes guard: Force Welcome screen if not authenticated
+        if (!dynamicIsAuthenticated) {
+          return welcome;
         }
 
         return null;
