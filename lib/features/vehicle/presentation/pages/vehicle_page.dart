@@ -1,12 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../obd/presentation/providers/obd_provider.dart';
+import '../../../vehicle_intelligence/presentation/providers/vehicle_intelligence_provider.dart';
 
-class VehicleTab extends StatelessWidget {
+class VehicleTab extends ConsumerWidget {
   const VehicleTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final vehicleAsync = ref.watch(currentVehicleProvider);
+    final obdAsync = ref.watch(oBDStateNotifierProvider);
+
+    final vehicle = vehicleAsync.valueOrNull;
+    final obdData = obdAsync.valueOrNull ?? {
+      'isConnected': false,
+      'vin': '',
+      'rpm': 0.0,
+      'coolant': 0.0,
+      'voltage': 12.4,
+      'dtcs': <String>[],
+    };
+
+    final isConnected = obdData['isConnected'] == true;
+    final rpm = (obdData['rpm'] as num?)?.toDouble() ?? 0.0;
+    final coolant = (obdData['coolant'] as num?)?.toDouble() ?? 0.0;
+    final voltage = (obdData['voltage'] as num?)?.toDouble() ?? 12.4;
+    final vin = obdData['vin']?.toString().isNotEmpty == true 
+        ? obdData['vin'] 
+        : (vehicle?.vin ?? 'Not Connected');
+
+    final String brandModel = vehicle != null 
+        ? '${vehicle.brand} ${vehicle.model}' 
+        : 'No Active Vehicle';
+
+    final String engineCode = vehicle?.engineCode ?? '1.8L i-VTEC';
+    final String fuelType = vehicle?.fuelType ?? 'Petrol';
+    final String protocol = isConnected ? 'Auto-Detected' : 'OBD-II Standard';
+
     return Scaffold(
       backgroundColor: context.colors.surface,
       appBar: AppBar(
@@ -49,14 +81,14 @@ class VehicleTab extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Honda Civic (Mock)',
+                                  brandModel,
                                   style: context.textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 const SizedBox(height: AppTheme.spacing4),
                                 Text(
-                                  'VIN: Not Connected',
+                                  'VIN: $vin',
                                   style: context.textTheme.bodyMedium?.copyWith(
                                     color: context.colors.onSurface.withOpacity(0.5),
                                   ),
@@ -69,12 +101,12 @@ class VehicleTab extends StatelessWidget {
                       const SizedBox(height: AppTheme.spacing20),
                       const Divider(),
                       const SizedBox(height: AppTheme.spacing12),
-                      const Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _StatItem(label: 'Engine', value: '1.8L i-VTEC'),
-                          _StatItem(label: 'Fuel Type', value: 'Petrol'),
-                          _StatItem(label: 'Protocol', value: 'OBD-II'),
+                          _StatItem(label: 'Engine', value: engineCode),
+                          _StatItem(label: 'Fuel Type', value: fuelType),
+                          _StatItem(label: 'Protocol', value: protocol),
                         ],
                       ),
                     ],
@@ -100,26 +132,26 @@ class VehicleTab extends StatelessWidget {
                 childAspectRatio: 1.4,
                 crossAxisSpacing: AppTheme.spacing12,
                 mainAxisSpacing: AppTheme.spacing12,
-                children: const [
+                children: [
                   _SensorGridItem(
                     name: 'Engine RPM',
-                    value: '--',
+                    value: isConnected ? rpm.toStringAsFixed(0) : '--',
                     unit: 'RPM',
                     icon: Icons.speed_rounded,
                   ),
                   _SensorGridItem(
                     name: 'Coolant Temp',
-                    value: '--',
+                    value: isConnected ? coolant.toStringAsFixed(0) : '--',
                     unit: '°C',
                     icon: Icons.thermostat_rounded,
                   ),
                   _SensorGridItem(
                     name: 'Battery Voltage',
-                    value: '--',
+                    value: isConnected ? voltage.toStringAsFixed(1) : '--',
                     unit: 'V',
                     icon: Icons.battery_charging_full_rounded,
                   ),
-                  _SensorGridItem(
+                  const _SensorGridItem(
                     name: 'Throttle Position',
                     value: '--',
                     unit: '%',

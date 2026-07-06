@@ -52,3 +52,20 @@ final allReportsProvider = FutureProvider<List<DiagnosticReport>>((ref) async {
 final templateProvider = Provider<List<ReportTemplate>>((ref) {
   return ReportTemplateEngine().getStandardTemplates();
 });
+
+final generateReportProvider = Provider((ref) {
+  final repo = ref.watch(reportRepositoryProvider);
+  final builder = ref.watch(reportBuilderEngineProvider);
+  
+  return ({required ReportTemplate template, List<String> dtcs = const []}) async {
+    final report = builder.buildReport(
+      vehicleId: 'VEH_ACTIVE',
+      sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
+      template: template,
+      dtcs: dtcs,
+    );
+    await repo.saveReport(report);
+    ref.invalidate(allReportsProvider);
+    return report;
+  };
+});

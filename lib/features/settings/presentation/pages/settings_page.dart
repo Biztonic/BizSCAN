@@ -28,7 +28,9 @@ class SettingsTab extends StatelessWidget {
             icon: Icons.language_rounded,
             title: 'Language',
             subtitle: 'English / Hindi / Marathi',
-            onTap: () {},
+            onTap: () {
+              context.push('/language-selection');
+            },
           ),
           _settingsItem(
             context,
@@ -46,7 +48,9 @@ class SettingsTab extends StatelessWidget {
             icon: Icons.bluetooth_rounded,
             title: 'Device Connection',
             subtitle: 'Choose OBD-II Bluetooth device',
-            onTap: () {},
+            onTap: () {
+              context.push('/bluetooth-scan');
+            },
           ),
           _settingsItem(
             context,

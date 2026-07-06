@@ -23,7 +23,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Diagnostic Reports'), findsOneWidget);
-      expect(find.text('Report Templates'), findsOneWidget);
+      expect(find.textContaining('Report Template'), findsOneWidget);
     });
 
     testWidgets('ReportPreviewPage renders report details', (tester) async {

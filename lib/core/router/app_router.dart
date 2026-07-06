@@ -13,10 +13,11 @@ import '../../features/authentication/presentation/pages/forgot_password_page.da
 import '../../features/dashboard/presentation/pages/dashboard_shell.dart';
 import '../../features/dashboard/presentation/pages/dashboard_tab.dart';
 import '../../features/vehicle/presentation/pages/vehicle_page.dart';
-import '../../features/reports/presentation/pages/reports_page.dart';
+import '../../features/reports/presentation/pages/report_dashboard_page.dart';
 import '../../features/history/presentation/pages/history_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/settings/presentation/pages/style_guide_page.dart';
+import '../../features/bluetooth/presentation/pages/bluetooth_scan_page.dart';
 
 class AppRouter {
   static const String splash = '/splash';
@@ -27,6 +28,7 @@ class AppRouter {
   static const String register = '/register';
   static const String phoneLogin = '/phone-login';
   static const String forgotPassword = '/forgot-password';
+  static const String bluetoothScan = '/bluetooth-scan';
   static const String dashboard = '/dashboard';
   static const String vehicle = '/vehicle';
   static const String reports = '/reports';
@@ -79,6 +81,10 @@ class AppRouter {
           builder: (context, state) => const ForgotPasswordPage(),
         ),
         GoRoute(
+          path: bluetoothScan,
+          builder: (context, state) => const BluetoothScanPage(),
+        ),
+        GoRoute(
           path: styleGuide,
           builder: (context, state) => const StyleGuidePage(),
         ),
@@ -103,7 +109,7 @@ class AppRouter {
             GoRoute(
               path: reports,
               pageBuilder: (context, state) => const NoTransitionPage(
-                child: ReportsTab(),
+                child: ReportDashboardPage(),
               ),
             ),
             GoRoute(
@@ -132,6 +138,7 @@ class AppRouter {
         final onRegister = state.matchedLocation == register;
         final onPhoneLogin = state.matchedLocation == phoneLogin;
         final onForgotPassword = state.matchedLocation == forgotPassword;
+        final onBluetoothScan = state.matchedLocation == bluetoothScan;
 
         final prefs = sl<SharedPreferences>();
         final dynamicIsAuthenticated = prefs.getBool('is_authenticated') ?? isAuthenticated;
@@ -150,7 +157,8 @@ class AppRouter {
             loggingIn ||
             onRegister ||
             onPhoneLogin ||
-            onForgotPassword;
+            onForgotPassword ||
+            onBluetoothScan;
 
         if (isPublicRoute) return null;
 
