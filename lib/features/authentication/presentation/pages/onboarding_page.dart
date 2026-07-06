@@ -9,8 +9,12 @@ class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});
 
   Future<void> _completeOnboarding(BuildContext context) async {
-    final prefs = sl<SharedPreferences>();
-    await prefs.setBool('show_onboarding', false);
+    try {
+      final prefs = sl<SharedPreferences>();
+      await prefs.setBool('show_onboarding', false);
+    } catch (_) {
+      // Navigation must proceed even if prefs fail
+    }
     if (context.mounted) {
       context.go('/welcome');
     }
